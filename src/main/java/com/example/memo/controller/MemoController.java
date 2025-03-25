@@ -64,20 +64,57 @@ public class MemoController {
     }
 
     @PutMapping("/{id}")
-    public MemoResponseDto updateMemoById(
+    // public MemoResponseDto updateMemoById(
+    public ResponseEntity<MemoResponseDto> updateMemoById(
             @PathVariable Long id,
-            @RequestBody MemoRequestDto dto
-    ) {
+            @RequestBody MemoRequestDto dto) {
+
         Memo memo = memoList.get(id);
+
+        if (memo == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        if (dto.getTitle() == null || dto.getContents() == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         memo.update(dto);
 
-        return new MemoResponseDto(memo);
+        // return new MemoResponseDto(memo);
+        return new ResponseEntity<>(new MemoResponseDto(memo), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<MemoResponseDto> updateTitle(
+            @PathVariable Long id,
+            @RequestBody MemoRequestDto dto) {
+
+        Memo memo = memoList.get(id);
+
+        if (memo == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        if (dto.getTitle() == null || dto.getContents() != null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        memo.updateTitle(dto);
+
+        return new ResponseEntity<>(new MemoResponseDto(memo), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteMemo(@PathVariable Long id) {
+    // public void deleteMemo(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteMemo(@PathVariable Long id) {
 
-        memoList.remove(id);
+        if (memoList.containsKey(id)) {
+            memoList.remove(id);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
